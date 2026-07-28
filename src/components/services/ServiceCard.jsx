@@ -1,11 +1,13 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
 import { getServiceIcon } from '../../constants/serviceIcons.js'
 import { getPricingLabel } from '../../utils/formatPricing.js'
+import ServiceOptionModal from './ServiceOptionModal.jsx'
 
 export default function ServiceCard({ service, category }) {
   const Icon = getServiceIcon(service, category)
   const isPartnerNetwork = category?.fulfilled_by === 'trusted_network'
+  const [modalOpen, setModalOpen] = useState(false)
 
   return (
     <div className="group flex flex-col rounded-2xl border border-navy-950/10 bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md focus-within:-translate-y-0.5 focus-within:shadow-md">
@@ -23,18 +25,25 @@ export default function ServiceCard({ service, category }) {
       <h3 className="mt-4 text-base font-semibold text-navy-950">{service.name}</h3>
       <p className="mt-1.5 line-clamp-2 text-sm text-navy-700">{service.short_description}</p>
 
-      <div className="mt-4 flex flex-1 items-end justify-between gap-3">
-        <span className="text-sm font-semibold text-navy-900">
-          {getPricingLabel(service)}
-        </span>
+      <div className="mt-4 flex items-center justify-between gap-2">
+        <span className="text-sm font-semibold text-navy-900">{getPricingLabel(service)}</span>
         <Link
           to={`/services/${service.slug}`}
-          className="flex items-center gap-1 rounded-full bg-navy-950 px-4 py-2.5 text-sm font-medium text-white transition-colors group-hover:bg-gold-500 group-hover:text-navy-950"
+          className="text-sm font-medium text-navy-700 underline-offset-2 hover:text-navy-950 hover:underline"
         >
-          View
-          <ArrowRight className="h-3.5 w-3.5" />
+          View Details
         </Link>
       </div>
+
+      <button
+        type="button"
+        onClick={() => setModalOpen(true)}
+        className="mt-3 w-full rounded-full bg-navy-950 py-2.5 text-sm font-medium text-white transition-colors hover:bg-gold-500 hover:text-navy-950"
+      >
+        Book
+      </button>
+
+      <ServiceOptionModal open={modalOpen} serviceId={service.id} onClose={() => setModalOpen(false)} />
     </div>
   )
 }

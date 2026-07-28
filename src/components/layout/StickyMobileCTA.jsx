@@ -1,13 +1,9 @@
 import { Phone, MessageCircle, CalendarCheck } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { businessConfig } from '../../constants/businessConfig.js'
 import { buildWhatsAppLink } from '../../utils/whatsapp.js'
-import { Link } from 'react-router-dom'
+import BasketBadge from '../booking/BasketBadge.jsx'
 
-/**
- * Fixed bottom action bar, mobile-only (requirement #32: "sticky booking
- * CTA where useful" on mobile). Adds bottom padding to <main> via App.jsx
- * so page content never sits underneath it.
- */
 export default function StickyMobileCTA() {
   return (
     <div
@@ -36,11 +32,12 @@ export default function StickyMobileCTA() {
 
       <Link
         to="/book"
-        className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-gold-500 py-2.5 text-sm font-semibold text-navy-950"
+        className="relative flex flex-1 items-center justify-center gap-1.5 rounded-full bg-gold-500 py-2.5 text-sm font-semibold text-navy-950"
         aria-label="Book a service"
       >
         <CalendarCheck className="h-4 w-4" />
         Book
+        <BasketBadge className="absolute -right-1 -top-1" />
       </Link>
     </div>
   )

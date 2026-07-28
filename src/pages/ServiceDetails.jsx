@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Phone, MessageCircle, CheckCircle2 } from 'lucide-react'
 import { useServiceCatalogue } from '../hooks/useServiceCatalogue.js'
@@ -9,6 +10,7 @@ import Breadcrumbs from '../components/common/Breadcrumbs.jsx'
 import EmptyState from '../components/common/EmptyState.jsx'
 import Accordion from '../components/common/Accordion.jsx'
 import ServiceCard from '../components/services/ServiceCard.jsx'
+import ServiceOptionModal from '../components/services/ServiceOptionModal.jsx'
 
 const HOW_IT_WORKS = [
     "Submit your request online or over WhatsApp — no account needed.",
@@ -21,6 +23,7 @@ export default function ServiceDetails() {
     const { slug } = useParams()
     const { getServiceBySlug, categories, getOptionsForService, getServicesByCategory, faqs } =
         useServiceCatalogue()
+    const [modalOpen, setModalOpen] = useState(false)
 
     const service = getServiceBySlug(slug)
 
@@ -125,12 +128,13 @@ export default function ServiceDetails() {
                         <p className="text-sm text-navy-700">Pricing</p>
                         <p className="mt-1 text-lg font-bold text-navy-950">{getPricingLabel(service)}</p>
 
-                        <Link
-                            to={`/book?service=${service.slug}`}
+                        <button
+                            type="button"
+                            onClick={() => setModalOpen(true)}
                             className="mt-5 flex w-full items-center justify-center rounded-full bg-gold-500 py-3 text-sm font-semibold text-navy-950 hover:bg-gold-400"
                         >
                             Book This Service
-                        </Link>
+                        </button>
 
                         <div className="mt-3 flex gap-2">
                             <a
@@ -165,6 +169,8 @@ export default function ServiceDetails() {
                     </div>
                 </div>
             )}
+
+            <ServiceOptionModal open={modalOpen} serviceId={service.id} onClose={() => setModalOpen(false)} />
         </div>
     )
 }

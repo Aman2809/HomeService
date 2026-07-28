@@ -3,6 +3,7 @@ import { NavLink, Link } from 'react-router-dom'
 import { Menu, Zap } from 'lucide-react'
 import { businessConfig } from '../../constants/businessConfig.js'
 import MobileMenu from './MobileMenu.jsx'
+import BasketBadge from '../booking/BasketBadge.jsx'
 
 const NAV_LINKS = [
   { label: 'Home', to: '/' },
@@ -26,7 +27,6 @@ export default function Navbar() {
     <>
       <header className="sticky top-0 z-50 bg-navy-950 shadow-sm">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Logo / Brand */}
           <Link to="/" className="flex items-center gap-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold-500">
               <Zap className="h-5 w-5 text-navy-950" fill="currentColor" />
@@ -41,7 +41,6 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop nav links */}
           <nav className="hidden items-center gap-8 lg:flex" aria-label="Primary">
             {NAV_LINKS.map((link) => (
               <NavLink key={link.to} to={link.to} className={navLinkClasses}>
@@ -50,7 +49,6 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Desktop right-side actions */}
           <div className="hidden items-center gap-3 lg:flex">
             <Link
               to="/login"
@@ -60,13 +58,13 @@ export default function Navbar() {
             </Link>
             <Link
               to="/book"
-              className="rounded-full bg-gold-500 px-5 py-2.5 text-sm font-semibold text-navy-950 shadow-sm transition-colors hover:bg-gold-400"
+              className="relative rounded-full bg-gold-500 px-5 py-2.5 text-sm font-semibold text-navy-950 shadow-sm transition-colors hover:bg-gold-400"
             >
               Book a Service
+              <BasketBadge className="absolute -right-2 -top-2" />
             </Link>
           </div>
 
-          {/* Mobile menu trigger */}
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
@@ -79,11 +77,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      <MobileMenu
-        open={mobileOpen}
-        onClose={() => setMobileOpen(false)}
-        links={NAV_LINKS}
-      />
+      <MobileMenu open={mobileOpen} onClose={() => setMobileOpen(false)} links={NAV_LINKS} />
     </>
   )
 }

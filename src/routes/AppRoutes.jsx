@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import ComingSoon from '../pages/ComingSoon.jsx'
 import Services from '../pages/Services.jsx'
 import ServiceDetails from '../pages/ServiceDetails.jsx'
+import Booking from '../pages/Booking.jsx'
 
 export default function AppRoutes() {
   return (
@@ -9,7 +10,7 @@ export default function AppRoutes() {
       <Route path="/" element={<ComingSoon title="Home" />} />
       <Route path="/services" element={<Services />} />
       <Route path="/services/:slug" element={<ServiceDetails />} />
-      <Route path="/book" element={<ComingSoon title="Book a Service" />} />
+      <Route path="/book" element={<Booking />} />
       <Route path="/about" element={<ComingSoon title="About" />} />
       <Route path="/areas" element={<ComingSoon title="Areas We Serve" />} />
       <Route path="/contact" element={<ComingSoon title="Contact" />} />
