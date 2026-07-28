@@ -27,14 +27,20 @@ function loadPersistedItems() {
   }
 }
 
+// Personal/location/schedule data — NEVER persisted to localStorage.
+// Only `items` (the basket) is persisted, unchanged from Step 4.
+const DEFAULT_LOCATION = { areaId: null, address: '', landmark: '' }
+const DEFAULT_CUSTOMER_DETAILS = { fullName: '', phone: '', email: '', description: '' }
+const DEFAULT_SCHEDULE = { preferredDate: '', timeSlotId: null }
+const DEFAULT_SUBMISSION = { status: 'idle', error: null, result: null }
+
 const initialState = {
   items: loadPersistedItems(),
-  // Reserved for later steps — not read/written by anything in Phase 1
-  // Step 4, and never persisted to localStorage.
-  location: null,
-  customerDetails: null,
-  schedule: null,
+  location: { ...DEFAULT_LOCATION },
+  customerDetails: { ...DEFAULT_CUSTOMER_DETAILS },
+  schedule: { ...DEFAULT_SCHEDULE },
   currentStep: 'services',
+  submission: { ...DEFAULT_SUBMISSION },
 }
 
 function bookingReducer(state, action) {
@@ -80,7 +86,6 @@ function bookingReducer(state, action) {
       const newItemId = buildBasketItemId(current.serviceId, serviceOptionId)
       const clampedQuantity = clampQuantity(quantity)
 
-      // Option unchanged (or service has no options) — update in place.
       if (newItemId === itemId) {
         return {
           ...state,
@@ -95,8 +100,6 @@ function bookingReducer(state, action) {
       const withoutOld = state.items.filter((item) => item.itemId !== itemId)
       const collision = withoutOld.find((item) => item.itemId === newItemId)
 
-      // New option collides with an existing row for that configuration
-      // — merge quantities into it rather than keeping two rows.
       if (collision) {
         return {
           ...state,
@@ -108,7 +111,6 @@ function bookingReducer(state, action) {
         }
       }
 
-      // New option is a genuinely different configuration — rename the row.
       return {
         ...state,
         items: [
@@ -124,13 +126,47 @@ function bookingReducer(state, action) {
       }
     }
 
-    case 'REMOVE_ITEM': {
+    case 'REMOVE_ITEM':
       return { ...state, items: state.items.filter((item) => item.itemId !== action.payload.itemId) }
-    }
 
-    case 'CLEAR_BASKET': {
+    case 'CLEAR_BASKET':
       return { ...state, items: [] }
-    }
+
+    case 'SET_LOCATION':
+      return { ...state, location: { ...state.location, ...action.payload } }
+
+    case 'SET_CUSTOMER_DETAILS':
+      return { ...state, customerDetails: { ...state.customerDetails, ...action.payload } }
+
+    case 'SET_SCHEDULE':
+      return { ...state, schedule: { ...state.schedule, ...action.payload } }
+
+    case 'SET_STEP':
+      return { ...state, currentStep: action.payload.step }
+
+    case 'SUBMIT_START':
+      return { ...state, submission: { status: 'submitting', error: null, result: null } }
+
+    // Success clears the active booking data in the same atomic
+    // transition — the submitted result lives only in `submission`,
+    // so clearing items/location/customerDetails/schedule here cannot
+    // affect what the success screen renders.
+    case 'SUBMIT_SUCCESS':
+      return {
+        ...state,
+        items: [],
+        location: { ...DEFAULT_LOCATION },
+        customerDetails: { ...DEFAULT_CUSTOMER_DETAILS },
+        schedule: { ...DEFAULT_SCHEDULE },
+        currentStep: 'services',
+        submission: { status: 'success', error: null, result: action.payload.result },
+      }
+
+    case 'SUBMIT_ERROR':
+      return { ...state, submission: { status: 'error', error: action.payload.error, result: null } }
+
+    case 'SUBMIT_RESET':
+      return { ...state, submission: { ...DEFAULT_SUBMISSION } }
 
     default:
       return state
@@ -140,6 +176,9 @@ function bookingReducer(state, action) {
 export function BookingProvider({ children }) {
   const [state, dispatch] = useReducer(bookingReducer, initialState)
 
+  // Only `items` is written to localStorage — this also fires (and
+  // correctly clears the stored basket) whenever SUBMIT_SUCCESS empties
+  // `items`, satisfying "clear persisted basket after submission".
   useEffect(() => {
     try {
       window.localStorage.setItem(
@@ -147,8 +186,7 @@ export function BookingProvider({ children }) {
         JSON.stringify({ version: BASKET_STORAGE_VERSION, items: state.items }),
       )
     } catch {
-      // localStorage may be unavailable (private browsing, quota) —
-      // the basket still works fine in-memory for the session.
+      // localStorage may be unavailable — basket still works in-memory.
     }
   }, [state.items])
 
@@ -161,14 +199,30 @@ export function BookingProvider({ children }) {
     () => ({
       items: state.items,
       itemCount,
+      location: state.location,
+      customerDetails: state.customerDetails,
+      schedule: state.schedule,
+      currentStep: state.currentStep,
+      submission: state.submission,
+
       addItem: (payload) => dispatch({ type: 'ADD_ITEM', payload }),
       updateQuantity: (itemId, quantity) =>
         dispatch({ type: 'UPDATE_QUANTITY', payload: { itemId, quantity } }),
       updateItemConfig: (payload) => dispatch({ type: 'UPDATE_ITEM_CONFIG', payload }),
       removeItem: (itemId) => dispatch({ type: 'REMOVE_ITEM', payload: { itemId } }),
       clearBasket: () => dispatch({ type: 'CLEAR_BASKET' }),
+
+      setLocation: (payload) => dispatch({ type: 'SET_LOCATION', payload }),
+      setCustomerDetails: (payload) => dispatch({ type: 'SET_CUSTOMER_DETAILS', payload }),
+      setSchedule: (payload) => dispatch({ type: 'SET_SCHEDULE', payload }),
+      setStep: (step) => dispatch({ type: 'SET_STEP', payload: { step } }),
+
+      submitStart: () => dispatch({ type: 'SUBMIT_START' }),
+      submitSuccess: (result) => dispatch({ type: 'SUBMIT_SUCCESS', payload: { result } }),
+      submitError: (error) => dispatch({ type: 'SUBMIT_ERROR', payload: { error } }),
+      submitReset: () => dispatch({ type: 'SUBMIT_RESET' }),
     }),
-    [state.items, itemCount],
+    [state, itemCount],
   )
 
   return <BookingContext.Provider value={value}>{children}</BookingContext.Provider>

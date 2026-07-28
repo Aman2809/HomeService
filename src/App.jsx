@@ -1,3 +1,4 @@
+import { useLocation } from 'react-router-dom'
 import { BookingProvider } from './contexts/BookingContext.jsx'
 import Navbar from './components/layout/Navbar.jsx'
 import Footer from './components/layout/Footer.jsx'
@@ -5,6 +6,9 @@ import StickyMobileCTA from './components/layout/StickyMobileCTA.jsx'
 import AppRoutes from './routes/AppRoutes.jsx'
 
 export default function App() {
+  const location = useLocation()
+  const hideStickyCTA = location.pathname.startsWith('/book')
+
   return (
     <BookingProvider>
       <div className="flex min-h-screen flex-col">
@@ -14,12 +18,12 @@ export default function App() {
 
         <Navbar />
 
-        <main id="main-content" className="flex-1 pb-20 lg:pb-0">
+        <main id="main-content" className={hideStickyCTA ? 'flex-1' : 'flex-1 pb-20 lg:pb-0'}>
           <AppRoutes />
         </main>
 
         <Footer />
-        <StickyMobileCTA />
+        {!hideStickyCTA && <StickyMobileCTA />}
       </div>
     </BookingProvider>
   )
