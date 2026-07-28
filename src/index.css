@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------
+   Design tokens — derived from the UI reference (navy / gold / white).
+   Adjust these values, not individual component classes, if the
+   palette needs to change later.
+--------------------------------------------------------------- */
+@theme {
+  --color-navy-950: #0a1526;
+  --color-navy-900: #0f1f38;
+  --color-navy-800: #16304f;
+  --color-navy-700: #1f4166;
+  --color-navy-600: #2b567f;
+
+  --color-gold-400: #ffd166;
+  --color-gold-500: #f5b301;
+  --color-gold-600: #d99900;
+
+  --color-surface: #f7f8fa;
+  --color-surface-dark: #eef0f3;
+
+  --font-display: "Sora", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--color-navy-950);
+    background-color: #ffffff;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+
+  /* Visible keyboard focus everywhere — required by requirement #37 */
+  :focus-visible {
+    outline: 2px solid var(--color-gold-500);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer utilities {
+  .sr-only-focusable {
+    @apply sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:bg-white focus:text-navy-950 focus:px-4 focus:py-2 focus:rounded-lg;
+  }
+}
