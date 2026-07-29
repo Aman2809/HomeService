@@ -11,6 +11,7 @@ import EmptyState from '../components/common/EmptyState.jsx'
 import Accordion from '../components/common/Accordion.jsx'
 import ServiceCard from '../components/services/ServiceCard.jsx'
 import ServiceOptionModal from '../components/services/ServiceOptionModal.jsx'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 
 const HOW_IT_WORKS = [
     "Submit your request online or over WhatsApp — no account needed.",
@@ -26,6 +27,7 @@ export default function ServiceDetails() {
     const [modalOpen, setModalOpen] = useState(false)
 
     const service = getServiceBySlug(slug)
+    useDocumentTitle(service ? service.name : 'Service Not Found')
 
     if (!service) {
         return (

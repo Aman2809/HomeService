@@ -74,6 +74,10 @@ export function useServiceCatalogue() {
     return activeServiceAreas.some((a) => a.slug === slug)
   }
 
+  function getFeaturedServices() {
+  return activeServices.filter((s) => s.homepage_featured)
+}
+
   return {
     categories: activeCategories,
     services: activeServices,
@@ -87,6 +91,7 @@ export function useServiceCatalogue() {
     getOptionsForService,
     getAreaBySlug,
     isAreaSupported,
+    getFeaturedServices,
 
     // Placeholder for Phase 2 — always false/null locally, real values
     // once this hook fetches from Supabase.

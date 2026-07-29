@@ -11,14 +11,14 @@ export const businessConfig = {
   tagline: 'Electrical & Home Services',
 
   // TODO: replace with the real business phone number (E.164 format for tel: links)
-  phone: '+919876543210',
-  phoneDisplay: '98765 43210',
+  phone: '+919830899359',
+  phoneDisplay: '98308 99359',
 
   // TODO: replace with the real WhatsApp business number (digits only, country code, no +)
-  whatsapp: '919876543210',
+  whatsapp: '919830899359',
 
   // TODO: replace with a real contact email
-  email: 'contact@example.com',
+  email: 'ashishthakur46105@gmail.com',
 
   serviceRegion: 'South Kolkata',
   experienceYears: 10,

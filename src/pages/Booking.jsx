@@ -10,12 +10,14 @@ import StepSchedule from '../components/booking/StepSchedule.jsx'
 import StepReview from '../components/booking/StepReview.jsx'
 import BookingSuccess from '../components/booking/BookingSuccess.jsx'
 import ServiceOptionModal from '../components/services/ServiceOptionModal.jsx'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 
 export default function Booking() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { getServiceBySlug } = useServiceCatalogue()
   const { currentStep, submission } = useBooking()
   const [autoOpenServiceId, setAutoOpenServiceId] = useState(null)
+  useDocumentTitle(submission.status === 'success' ? 'Request Received' : 'Book a Service')
 
   useEffect(() => {
     const slug = searchParams.get('service')

@@ -4,8 +4,10 @@ import CategoryFilter from '../components/services/CategoryFilter.jsx'
 import ServiceCard from '../components/services/ServiceCard.jsx'
 import EmptyState from '../components/common/EmptyState.jsx'
 import { businessConfig } from '../constants/businessConfig.js'
+import { useDocumentTitle } from '../hooks/useDocumentTitle.js'
 
 export default function Services() {
+  useDocumentTitle('Services')
   const { categories, getServicesByCategory } = useServiceCatalogue()
   const [searchParams, setSearchParams] = useSearchParams()
   const activeSlug = searchParams.get('category') ?? 'all'
