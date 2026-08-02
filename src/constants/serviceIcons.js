@@ -14,7 +14,7 @@ import {
   LayoutGrid,
 } from 'lucide-react'
 
-// Maps a category's `icon` string (see data/categories.js) to a component.
+// Maps a category's `icon` value to a Lucide icon component.
 const CATEGORY_ICON_MAP = {
   Zap,
   Wind,
