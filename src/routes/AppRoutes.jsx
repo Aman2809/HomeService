@@ -1,5 +1,4 @@
 import { Routes, Route } from 'react-router-dom'
-import ComingSoon from '../pages/ComingSoon.jsx'
 import Home from '../pages/Home.jsx'
 import Services from '../pages/Services.jsx'
 import ServiceDetails from '../pages/ServiceDetails.jsx'
@@ -17,6 +16,11 @@ import ResetPassword from '../pages/Auth/ResetPassword.jsx'
 import Account from '../pages/Account/Account.jsx'
 import AccountBookings from '../pages/Account/AccountBookings.jsx'
 import ProtectedRoute from '../components/routing/ProtectedRoute.jsx'
+import AdminLogin from '../pages/Admin/AdminLogin.jsx'
+import AdminDashboard from '../pages/Admin/AdminDashboard.jsx'
+import AdminRequests from '../pages/Admin/AdminRequests.jsx'
+import AdminRequestDetail from '../pages/Admin/AdminRequestDetail.jsx'
+import AdminProtectedRoute from '../components/routing/AdminProtectedRoute.jsx'
 
 export default function AppRoutes() {
   return (
@@ -46,6 +50,31 @@ export default function AppRoutes() {
           <ProtectedRoute>
             <AccountBookings />
           </ProtectedRoute>
+        }
+      />
+      <Route path="/admin/login" element={<AdminLogin />} />
+      <Route
+        path="/admin"
+        element={
+          <AdminProtectedRoute>
+            <AdminDashboard />
+          </AdminProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/requests"
+        element={
+          <AdminProtectedRoute>
+            <AdminRequests />
+          </AdminProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/requests/:id"
+        element={
+          <AdminProtectedRoute>
+            <AdminRequestDetail />
+          </AdminProtectedRoute>
         }
       />
       <Route path="/privacy" element={<Privacy />} />

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useMemo } from 'react'
+import { createContext, useContext, useEffect, useState, useMemo, useRef } from 'react'
 import { supabase } from '../lib/supabaseClient.js'
 
 const AuthContext = createContext(null)
@@ -14,25 +14,36 @@ const AuthContext = createContext(null)
  * per-action loading state in the calling page, same pattern already
  * used in StepReview.jsx — this context does not track "submitting"
  * state for actions, only whether we know who (if anyone) is signed in.
+ *
+ * Admin authorization (`isAdmin`) is intentionally LAZY — unlike
+ * `session`, it is not resolved on every login. It stays `null`
+ * ("not yet checked") until something actually calls
+ * `checkAdminStatus()` (only AdminProtectedRoute / AdminLogin do this).
+ * This keeps the is_admin() RPC off the hot path for ordinary customer
+ * sessions, per Step 13 Phase 1 decision — most sessions will never
+ * trigger it at all.
  */
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  const [isAdmin, setIsAdmin] = useState(null) // null = not yet checked
+  const [adminLoading, setAdminLoading] = useState(false)
+
+  // Tracks which user id the current isAdmin value belongs to, so a
+  // repeated admin-route visit within the same session can reuse the
+  // result instead of re-hitting the RPC every time.
+  const adminCheckedForUserId = useRef(null)
+
   useEffect(() => {
     let isMounted = true
 
-    // Initial session read — resolves from persisted storage without
-    // a network round-trip in the common case.
     supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
       if (!isMounted) return
       setSession(initialSession)
       setLoading(false)
     })
 
-    // Covers all subsequent changes: sign in, sign out, token refresh,
-    // and the recovery session established after a password-reset
-    // email link is followed.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, nextSession) => {
         if (!isMounted) return
@@ -47,11 +58,51 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  // Whenever the underlying user changes (login, logout, switch
+  // account), any previous admin-check result is invalidated — a
+  // stale isAdmin from a prior session must never leak into a new
+  // one, even though the check itself stays lazy.
+  useEffect(() => {
+    setIsAdmin(null)
+    adminCheckedForUserId.current = null
+  }, [session?.user?.id])
+
   const value = useMemo(
     () => ({
       session,
       user: session?.user ?? null,
       loading,
+
+      isAdmin,
+      adminLoading,
+
+      /**
+       * Resolves whether the current user is an admin, calling the
+       * existing is_admin() RPC — never queries user_roles directly.
+       * Safe to call repeatedly; only performs a network call the
+       * first time for a given user id, or after a session change.
+       * Fails CLOSED: any RPC error results in isAdmin = false, never
+       * true, so a network hiccup can never accidentally grant access.
+       */
+      async checkAdminStatus() {
+        if (!session?.user) {
+          setIsAdmin(false)
+          return false
+        }
+
+        if (adminCheckedForUserId.current === session.user.id && isAdmin !== null) {
+          return isAdmin
+        }
+
+        setAdminLoading(true)
+        const { data, error } = await supabase.rpc('is_admin')
+        const result = !error && data === true
+
+        setIsAdmin(result)
+        adminCheckedForUserId.current = session.user.id
+        setAdminLoading(false)
+        return result
+      },
 
       async signUp({ email, password, fullName }) {
         return supabase.auth.signUp({
@@ -81,7 +132,7 @@ export function AuthProvider({ children }) {
         return supabase.auth.updateUser({ password: newPassword })
       },
     }),
-    [session, loading],
+    [session, loading, isAdmin, adminLoading],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
