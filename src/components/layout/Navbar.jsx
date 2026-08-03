@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { Menu, Zap, UserRound } from 'lucide-react'
+import { Menu, Zap, UserRound, LayoutDashboard } from 'lucide-react'
 import { businessConfig } from '../../constants/businessConfig.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import MobileMenu from './MobileMenu.jsx'
@@ -23,7 +23,11 @@ function navLinkClasses({ isActive }) {
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
-  const { user } = useAuth()
+  // Read-only: isAdmin is populated elsewhere (AdminLogin / 
+  // AdminProtectedRoute). This never calls checkAdminStatus() itself,
+  // preserving the Step 13 lazy-check design — a logged-in customer
+  // browsing the public site never triggers an is_admin() RPC call.
+  const { user, isAdmin } = useAuth()
 
   return (
     <>
@@ -49,6 +53,11 @@ export default function Navbar() {
                 {link.label}
               </NavLink>
             ))}
+            {isAdmin === true && (
+              <NavLink to="/admin" className={navLinkClasses}>
+                Dashboard
+              </NavLink>
+            )}
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">

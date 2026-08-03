@@ -83,8 +83,11 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 border-t border-white/10 pt-6 text-center text-xs text-white/50">
-          © {year} {businessConfig.businessName}. All rights reserved.
+        <div className="mt-10 flex flex-col items-center gap-3 border-t border-white/10 pt-6 text-center text-xs text-white/50 sm:flex-row sm:justify-between">
+          <p>© {year} {businessConfig.businessName}. All rights reserved.</p>
+          <Link to="/admin/login" className="text-white/40 hover:text-white/60">
+            Admin Login
+          </Link>
         </div>
       </div>
     </footer>

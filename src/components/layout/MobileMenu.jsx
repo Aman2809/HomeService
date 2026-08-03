@@ -6,9 +6,9 @@ import { useAuth } from '../../contexts/AuthContext.jsx'
 import { buildWhatsAppLink } from '../../utils/whatsapp.js'
 
 export default function MobileMenu({ open, onClose, links }) {
-  const { user } = useAuth()
+  // Read-only, same as Navbar — never triggers checkAdminStatus().
+  const { user, isAdmin } = useAuth()
 
-  // Lock background scroll while open, close on Escape (accessibility req #37)
   useEffect(() => {
     if (!open) return undefined
 
@@ -28,7 +28,6 @@ export default function MobileMenu({ open, onClose, links }) {
 
   return (
     <div className="fixed inset-0 z-60 lg:hidden" role="dialog" aria-modal="true">
-      {/* Backdrop */}
       <button
         type="button"
         aria-label="Close menu"
@@ -36,7 +35,6 @@ export default function MobileMenu({ open, onClose, links }) {
         className="absolute inset-0 bg-navy-950/60"
       />
 
-      {/* Panel */}
       <div className="absolute inset-y-0 right-0 flex w-full max-w-xs flex-col bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-navy-950/10 px-5 py-4">
           <span className="flex items-center gap-2">
@@ -75,6 +73,22 @@ export default function MobileMenu({ open, onClose, links }) {
               {link.label}
             </NavLink>
           ))}
+          {isAdmin === true && (
+            <NavLink
+              to="/admin"
+              onClick={onClose}
+              className={({ isActive }) =>
+                [
+                  'rounded-lg px-3 py-3 text-base font-medium',
+                  isActive
+                    ? 'bg-gold-500/10 text-gold-600'
+                    : 'text-navy-900 hover:bg-navy-950/5',
+                ].join(' ')
+              }
+            >
+              Dashboard
+            </NavLink>
+          )}
           {user ? (
             <NavLink
               to="/account"

@@ -1,11 +1,11 @@
-import { useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import AuthLayout from '../../components/auth/AuthLayout.jsx'
 import AuthField from '../../components/auth/AuthField.jsx'
 
 export default function AdminLogin() {
-  const { user, isAdmin, signIn, checkAdminStatus, signOut } = useAuth()
+  const { user, isAdmin, loading, signIn, checkAdminStatus, signOut } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -15,7 +15,38 @@ export default function AdminLogin() {
   const [error, setError] = useState(null)
   const [notAuthorized, setNotAuthorized] = useState(false)
 
+  // Handles the "already logged in as an admin, visiting /admin/login
+  // again" case (e.g. via the new Footer link). If a session exists
+  // but isAdmin hasn't been checked yet in this session (null), run
+  // the check once so a returning admin is still redirected without
+  // needing to re-enter credentials — this reuses checkAdminStatus(),
+  // the same function AdminProtectedRoute already relies on, not new
+  // auth logic.
+  useEffect(() => {
+    if (user && isAdmin === null) {
+      checkAdminStatus()
+    }
+  }, [user, isAdmin, checkAdminStatus])
+
   const redirectTo = location.state?.from?.pathname ?? '/admin'
+
+  // Session still resolving, or an admin-check triggered by the effect
+  // above is in flight — avoid rendering the form prematurely.
+  if (loading || (user && isAdmin === null)) {
+    return (
+      <AuthLayout title="Admin Login">
+        <p className="text-sm text-navy-700">Loading…</p>
+      </AuthLayout>
+    )
+  }
+
+  // Already authenticated AND already confirmed admin — skip the form
+  // entirely. Non-admins fall through to the normal form below
+  // unchanged (they can still attempt login / see the existing
+  // not-authorized messaging if they try).
+  if (user && isAdmin === true) {
+    return <Navigate to={redirectTo} replace />
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -32,9 +63,6 @@ export default function AdminLogin() {
       return
     }
 
-    // Authentication succeeded — now confirm this account actually
-    // has the admin role before letting them into /admin. A valid
-    // login here does not by itself imply admin access.
     const admin = await checkAdminStatus()
 
     if (!admin) {
