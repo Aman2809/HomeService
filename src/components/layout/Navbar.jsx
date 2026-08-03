@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { Menu, Zap } from 'lucide-react'
+import { Menu, Zap, UserRound } from 'lucide-react'
 import { businessConfig } from '../../constants/businessConfig.js'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import MobileMenu from './MobileMenu.jsx'
 import BasketBadge from '../booking/BasketBadge.jsx'
 
@@ -22,6 +23,7 @@ function navLinkClasses({ isActive }) {
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { user } = useAuth()
 
   return (
     <>
@@ -50,12 +52,22 @@ export default function Navbar() {
           </nav>
 
           <div className="hidden items-center gap-3 lg:flex">
-            <Link
-              to="/login"
-              className="text-sm font-medium text-white/85 transition-colors hover:text-white"
-            >
-              Login
-            </Link>
+            {user ? (
+              <Link
+                to="/account"
+                className="flex items-center gap-1.5 text-sm font-medium text-white/85 transition-colors hover:text-white"
+              >
+                <UserRound className="h-4 w-4" />
+                My Account
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="text-sm font-medium text-white/85 transition-colors hover:text-white"
+              >
+                Login
+              </Link>
+            )}
             <Link
               to="/book"
               className="relative rounded-full bg-gold-500 px-5 py-2.5 text-sm font-semibold text-navy-950 shadow-sm transition-colors hover:bg-gold-400"

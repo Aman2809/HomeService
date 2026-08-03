@@ -10,6 +10,13 @@ import Contact from '../pages/Contact.jsx'
 import Privacy from '../pages/Privacy.jsx'
 import Terms from '../pages/Terms.jsx'
 import NotFound from '../pages/NotFound.jsx'
+import Login from '../pages/Auth/Login.jsx'
+import Signup from '../pages/Auth/Signup.jsx'
+import ForgotPassword from '../pages/Auth/ForgotPassword.jsx'
+import ResetPassword from '../pages/Auth/ResetPassword.jsx'
+import Account from '../pages/Account/Account.jsx'
+import AccountBookings from '../pages/Account/AccountBookings.jsx'
+import ProtectedRoute from '../components/routing/ProtectedRoute.jsx'
 
 export default function AppRoutes() {
   return (
@@ -21,10 +28,26 @@ export default function AppRoutes() {
       <Route path="/about" element={<About />} />
       <Route path="/areas" element={<Areas />} />
       <Route path="/contact" element={<Contact />} />
-      <Route path="/login" element={<ComingSoon title="Login" />} />
-      <Route path="/signup" element={<ComingSoon title="Sign Up" />} />
-      <Route path="/account" element={<ComingSoon title="My Account" />} />
-      <Route path="/account/bookings" element={<ComingSoon title="My Bookings" />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route
+        path="/account"
+        element={
+          <ProtectedRoute>
+            <Account />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/account/bookings"
+        element={
+          <ProtectedRoute>
+            <AccountBookings />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="*" element={<NotFound />} />

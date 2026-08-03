@@ -1,10 +1,13 @@
 import { useEffect } from 'react'
 import { NavLink, Link } from 'react-router-dom'
-import { X, Phone, MessageCircle, Zap } from 'lucide-react'
+import { X, Phone, MessageCircle, Zap, UserRound } from 'lucide-react'
 import { businessConfig } from '../../constants/businessConfig.js'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import { buildWhatsAppLink } from '../../utils/whatsapp.js'
 
 export default function MobileMenu({ open, onClose, links }) {
+  const { user } = useAuth()
+
   // Lock background scroll while open, close on Escape (accessibility req #37)
   useEffect(() => {
     if (!open) return undefined
@@ -72,13 +75,24 @@ export default function MobileMenu({ open, onClose, links }) {
               {link.label}
             </NavLink>
           ))}
-          <NavLink
-            to="/login"
-            onClick={onClose}
-            className="rounded-lg px-3 py-3 text-base font-medium text-navy-900 hover:bg-navy-950/5"
-          >
-            Login
-          </NavLink>
+          {user ? (
+            <NavLink
+              to="/account"
+              onClick={onClose}
+              className="flex items-center gap-2 rounded-lg px-3 py-3 text-base font-medium text-navy-900 hover:bg-navy-950/5"
+            >
+              <UserRound className="h-4 w-4" />
+              My Account
+            </NavLink>
+          ) : (
+            <NavLink
+              to="/login"
+              onClick={onClose}
+              className="rounded-lg px-3 py-3 text-base font-medium text-navy-900 hover:bg-navy-950/5"
+            >
+              Login
+            </NavLink>
+          )}
         </nav>
 
         <div className="space-y-3 border-t border-navy-950/10 px-4 py-4">
